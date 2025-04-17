@@ -17,7 +17,7 @@ from torchvision.transforms.functional import to_pil_image
 from torch.nn.functional import softmax
 
 # === CONFIG ===
-MODEL_PATH = "E:\VISIONINSPECTREF\models\convnext_large.pth"
+MODEL_PATH = "\models\convnext_large.pth"
 IMAGE_SIZE = 512
 NUM_CLASSES = 6
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
