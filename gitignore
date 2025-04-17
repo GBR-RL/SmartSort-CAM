@@ -1,0 +1,50 @@
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Caches
+.cache/
+*.egg-info/
+
+# VS Code / PyCharm
+.vscode/
+.idea/
+
+# Environment files
+.env
+.venv/
+*.env
+*.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Data & output artifacts
+data/test_images/
+outputs/
+*.json
+*.png
+
+# Blender autosaves
+*.blend1
+*.blend2
+*.autosave
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Model weights
+*.pth
+*.pt
+
+# Docker
+*.tar
+__docker_build__/
+
+# Logs
+*.log

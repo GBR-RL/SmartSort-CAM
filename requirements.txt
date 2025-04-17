@@ -1,0 +1,8 @@
+fastapi>=0.95
+uvicorn[standard]>=0.22
+torch>=2.0
+torchvision>=0.15
+timm>=0.9
+pillow>=9.0
+matplotlib>=3.5
+numpy>=1.21
