@@ -8,7 +8,7 @@
 
 ![SmartSort-CAM Banner](https://raw.githubusercontent.com/gbr-rl/SmartSort-CAM/main/docs/banner.png)
 
-SmartSort-CAM is a comprehensive computer vision pipeline designed to classify industrial parts (bolts, nuts, washers, etc.) using a ConvNeXt-based deep learning model. The system includes a Blender-based synthetic dataset generator, a REST API for deployment, Grad-CAM visualization for explainability, Docker integration, and detailed exploratory analysis.
+SmartSort-CAM is a comprehensive computer vision pipeline designed to classify industrial parts (bolts, nuts, washers, gears, bearings etc.) using a ConvNeXt-based deep learning model. The system includes a Blender-based synthetic dataset generator, a REST API for deployment, Grad-CAM visualization for explainability, Docker integration, and detailed exploratory analysis.
 
 ---
 
@@ -97,7 +97,7 @@ This helped verify:
 
 ---
 
-## Model Training: ConvNeXt + Mixed Precision
+## Model Training: ConvNeXt + Mixed Precision(FP16)
 
 Defined in `notebooks/model_training.ipynb`:
 
