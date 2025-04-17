@@ -17,13 +17,13 @@ def send_image(image_path):
         response = requests.post(API_URL, files=files)
 
     if response.status_code != 200:
-        print("❌ Error:", response.text)
+        print(" Error:", response.text)
         return
 
     data = response.json()
 
     # === Print summary ===
-    print("✅ Prediction Response:")
+    print("Prediction Response:")
     for key, value in data.items():
         if key != "gradcam_overlay":
             print(f"{key}: {value}")
@@ -32,7 +32,7 @@ def send_image(image_path):
     json_filename = f"result_{os.path.splitext(os.path.basename(image_path))[0]}.json"
     with open(json_filename, "w") as jf:
         json.dump(data, jf, indent=2)
-    print(f"📄 Saved JSON to {json_filename}")
+    print(f"Saved JSON to {json_filename}")
 
     # === Save Grad-CAM ===
     if "gradcam_overlay" in data:
@@ -41,7 +41,7 @@ def send_image(image_path):
 
         output_filename = f"gradcam_{os.path.basename(image_path)}"
         cam_image.save(output_filename)
-        print(f"🖼️  Saved Grad-CAM overlay to {output_filename}")
+        print(f" Saved Grad-CAM overlay to {output_filename}")
         cam_image.show(title="Grad-CAM Overlay")
 
 if __name__ == "__main__":

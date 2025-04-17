@@ -7,6 +7,7 @@ import base64
 import uvicorn
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 
 from PIL import Image
 from torchvision import transforms
@@ -16,13 +17,12 @@ from torchvision.transforms.functional import to_pil_image
 from torch.nn.functional import softmax
 
 # === CONFIG ===
-MODEL_PATH = "E:\VisionInspect\models\convnext_large.pth"
+MODEL_PATH = "E:\VISIONINSPECTREF\models\convnext_large.pth"
 IMAGE_SIZE = 512
 NUM_CLASSES = 6
-#DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-DEVICE = torch.device("cuda")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 CLASS_NAMES = ['bolt', 'gear', 'nut', 'washer', 'bearing', 'connector']
-MODEL_VERSION = os.path.splitext(os.path.basename(MODEL_PATH))[0]  # Dynamic version
+MODEL_VERSION = os.path.splitext(os.path.basename(MODEL_PATH))[0] 
 
 # === LOAD MODEL ===
 model = timm.create_model('convnext_large', pretrained=False, num_classes=NUM_CLASSES)
@@ -41,7 +41,7 @@ def save_activation(module, input, output):
     global activations
     activations = output
 
-target_layer = model.stages[-1].blocks[-1].conv_dw  # ✅ correct hook layer
+target_layer = model.stages[-1].blocks[-1].conv_dw  
 target_layer.register_forward_hook(save_activation)
 target_layer.register_backward_hook(save_gradient)
 
@@ -99,7 +99,7 @@ async def predict(
     }
 
     if cam:
-        # === Generate Grad-CAM ===
+# === Generate Grad-CAM ===
         model.zero_grad()
         output[0, pred_idx].backward(retain_graph=True)
 
@@ -107,20 +107,36 @@ async def predict(
         for i in range(activations.shape[1]):
             activations[:, i, :, :] *= pooled_gradients[i]
 
-        heatmap = torch.mean(activations, dim=1).squeeze()
-        heatmap = heatmap.detach().cpu().numpy()
-        heatmap = np.maximum(heatmap, 0)
-        heatmap /= np.max(heatmap)
-        heatmap = np.uint8(255 * heatmap)
-        heatmap = Image.fromarray(heatmap).resize(image.size, resample=Image.BILINEAR).convert("RGB")
+        # Raw CAM
+        cam = torch.mean(activations, dim=1).squeeze().detach().cpu().numpy()
+        cam = np.maximum(cam, 0)
 
-        # Overlay heatmap
-        blended = Image.blend(image, heatmap, alpha=0.5)
+        # Amplify and normalize
+        cam = np.power(cam, 1.5)  # sharpen hot zones
+        cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-8)
+        cam = np.uint8(255 * cam)
 
-        # Convert to base64
-        buffered = io.BytesIO()
-        blended.save(buffered, format="PNG")
-        cam_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        # Apply CLAHE (local contrast stretching)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        cam = clahe.apply(cam)
+        cam[cam < 0.4] = 0  # only keep strong activations
+
+
+        # Use thermal-like colormap
+        cam_colored = cv2.applyColorMap(cam, cv2.COLORMAP_TURBO)
+
+        # Resize to match input image
+        input_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        cam_colored = cv2.resize(cam_colored, (input_cv.shape[1], input_cv.shape[0]))
+
+        # Blend CAM on image
+        cam_result = cv2.addWeighted(input_cv, 0.6, cam_colored, 0.4, 0)
+
+        # Convert to base64 for API response
+        cam_result_pil = Image.fromarray(cv2.cvtColor(cam_result, cv2.COLOR_BGR2RGB))
+        buffer = io.BytesIO()
+        cam_result_pil.save(buffer, format="PNG")
+        cam_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
         response["gradcam_overlay"] = f"data:image/png;base64,{cam_base64}"
 
     return JSONResponse(response)
@@ -130,4 +146,4 @@ def root():
     return {"message": "ConvNeXt REST API with Grad-CAM is live."}
 
 if __name__ == "__main__":
-    uvicorn.run("inference_api:app", host="0.0.0.0", port=8000)
+    uvicorn.run("inference:app", host="0.0.0.0", port=8000)
