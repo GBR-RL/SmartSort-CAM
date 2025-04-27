@@ -32,9 +32,6 @@ SmartSort-CAM/
 │   ├── test_images/
 │   ├── dataset_samples/
 │
-├── models/                    # Trained PyTorch model weights
-│   └── convnext_large.pth
-│
 ├── outputs/                   # Inference results
 │   ├── predictions/           # JSON output from API inference
 │   └── visualizations/        # Grad-CAM image overlays
