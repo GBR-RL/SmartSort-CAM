@@ -10,16 +10,16 @@ MODELS_DIR = "assests/STL"
 OUTPUT_DIR = "data/dataset_samples"      
 RENDERS_PER_STL = 200                       
 IMAGE_RESOLUTION = 512
-SAMPLES = 512     # Try 128 for speed; increase if needed
+SAMPLES = 512     # Try 128 for high speed rendering; 512 for quality
 
 # === ENABLE GPU RENDERING ===
 def enable_gpu_rendering():
     prefs = bpy.context.preferences.addons['cycles'].preferences
-    prefs.compute_device_type = 'CUDA'  # or 'OPTIX' if supported
+    prefs.compute_device_type = 'CUDA'  
     for device in prefs.devices:
         if device.type in {'CUDA', 'OPTIX'}:
             device.use = True
-            print(f"✅ Enabled GPU device: {device.name}")
+            print(f"Enabled GPU device: {device.name}")
     bpy.context.scene.cycles.device = 'GPU'
     for scene in bpy.data.scenes:
         scene.render.engine = 'CYCLES'
@@ -77,7 +77,7 @@ def setup_hdri_white_background(hdri_path, strength):
     out_node.location = (0, 200)
     links.new(mix_node.outputs['Shader'], out_node.inputs['Surface'])
 
-    bpy.context.scene.render.film_transparent = False
+    bpy.context.scene.render.film_transparent = False   # Set to False to ensure white background is rendered
 
 # === MINIMAL OVERHEAD LIGHT WITH RANDOMIZATION ===
 def setup_minimal_overhead_light():
