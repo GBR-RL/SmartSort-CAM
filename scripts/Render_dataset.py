@@ -118,7 +118,7 @@ def setup_camera_aimed_at(target_obj):
     cam.data.clip_end = 1000
     bpy.context.scene.camera = cam
 
-def apply_positional_jitter(obj, jitter_range=0.5):
+def apply_positional_jitter(obj, jitter_range=0.05):
     """
     Adds a small random offset to the object's position.
     jitter_range: Maximum offset (in scene units) along each axis.
@@ -147,8 +147,8 @@ def import_stl(filepath):
     scale_factor = random.uniform(0.95, 1.1)
     obj.scale = (scale_factor, scale_factor, scale_factor)
 
-    # 2. Apply positional jitter (if you still want this randomness)
-    apply_positional_jitter(obj, jitter_range=0.5)
+    # 2. Apply positional jitter
+    apply_positional_jitter(obj, jitter_range=0.05)
 
     # 3. Create a new material for the steel texture
     mat = bpy.data.materials.new(name="SteelMat")
